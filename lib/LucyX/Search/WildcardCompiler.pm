@@ -8,6 +8,8 @@ use Data::Dump qw( dump );
 
 our $VERSION = '0.01';
 
+my $DEBUG = $ENV{LUCYX_DEBUG} || 0;
+
 # inside out vars
 my (%include,           %searchable,        %idf,
     %raw_impact,        %lex_terms,         %doc_freq,
@@ -100,8 +102,13 @@ sub make_matcher {
     my $include = $include{$$self};
     while ( defined( my $lex_term = $lexicon->get_term ) ) {
 
-        warn
-            "lex_term=$lex_term   prefix=$prefix   suffix=$suffix   regex=$regex";
+        $DEBUG and warn sprintf(
+            "\n lex_term='%s'\n prefix=%s\n suffix=%s\n regex=%s\n",
+            ( defined $lex_term ? $lex_term : '[undef]' ),
+            ( defined $prefix   ? $prefix   : '[undef]' ),
+            ( defined $suffix   ? $suffix   : '[undef]' ),
+            ( defined $regex    ? $regex    : '[undef]' )
+        );
 
         # weed out non-matchers early.
         if ( defined $suffix and index( $lex_term, $suffix ) < 0 ) {
@@ -110,7 +117,7 @@ sub make_matcher {
         }
         last if defined $prefix and index( $lex_term, $prefix ) != 0;
 
-        carp "$term field:$field: term>$lex_term<";
+        $DEBUG and carp "$term field:$field: term>$lex_term<";
 
         if ($include) {
             unless ( $lex_term =~ $regex ) {
@@ -129,7 +136,7 @@ sub make_matcher {
             term  => $lex_term,
         );
 
-        carp "check posting_list";
+        $DEBUG and carp "check posting_list";
         if ($posting_list) {
             push @posting_lists, $posting_list;
             push @lex_terms,     $lex_term;
@@ -141,7 +148,7 @@ sub make_matcher {
     $doc_freq{$$self}  = scalar(@posting_lists);
     $lex_terms{$$self} = \@lex_terms;
 
-    carp dump \@posting_lists;
+    $DEBUG and carp dump \@posting_lists;
 
     # Calculate and store the IDF
     my $max_doc = $searchable->doc_max;
@@ -153,7 +160,7 @@ sub make_matcher {
 
     $raw_impact{$$self} = $idf * $parent->get_boost;
 
-    carp "raw_impact{$$self}= $raw_impact{$$self}";
+    $DEBUG and carp "raw_impact{$$self}= $raw_impact{$$self}";
 
     # make final preparations
     $self->_perform_query_normalization($searchable);

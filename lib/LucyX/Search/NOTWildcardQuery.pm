@@ -1,8 +1,9 @@
 package LucyX::Search::NOTWildcardQuery;
 use strict;
 use warnings;
-use base qw( LucyX::Search::WildcardQuery );
+use base qw( Lucy::Search::NOTQuery );
 use Carp;
+use LucyX::Search::WildcardQuery;
 
 our $VERSION = '0.01';
 
@@ -31,22 +32,30 @@ then a NOTWildcardQuery is equivalent to this:
 
 =head1 METHODS
 
-This class isa LucyX::Search::WildcardQuery subclass.
+This class isa Lucy::Search::NOTQuery subclass.
 Only new or overridden methods are documented.
 
-=head2 make_compiler
+=head2 new( term => $term, field => $field )
 
-Returns a LucyX::Search::WildcardCompiler object.
+Returns a NOTWildcardQuery.
 
 =cut
 
-sub make_compiler {
+sub new {
+    my ( $class, %args ) = @_;
+    my $wc_query = LucyX::Search::WildcardQuery->new(%args);
+    return $class->SUPER::new( negated_query => $wc_query, );
+}
+
+=head2 to_string
+
+Returns the query clause the object represents.
+
+=cut
+
+sub to_string {
     my $self = shift;
-    return LucyX::Search::WildcardCompiler->new(
-        @_,
-        parent  => $self,
-        include => 0,
-    );
+    return "NOT " . $self->get_negated_query->to_string();
 }
 
 1;
