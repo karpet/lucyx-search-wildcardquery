@@ -1,5 +1,5 @@
 Revision history for LucyX-Search-WildcardQuery
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+0.01    21 June 2011
+        Initial release. Forked from Search::Query::Dialect::Lucy.
 
