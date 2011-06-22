@@ -157,9 +157,10 @@ evaluate as equal if they have the same terma and field. This is a bug.
 sub equals {
     my ( $self, $other ) = @_;
     return 0 unless blessed($other);
-    return 0 unless $other->isa("Search::Query::Dialect::Lucy::WildcardQuery");
+    return 0
+        unless $other->isa("Search::Query::Dialect::Lucy::WildcardQuery");
     return 0 unless $field{$$self} eq $field{$$other};
-    return 0 unless $term{$$self} eq $term{$$other};
+    return 0 unless $term{$$self}  eq $term{$$other};
     return 1;
 }
 
@@ -185,7 +186,7 @@ sub make_compiler {
     my %args = @_;
     $args{parent}  = $self;
     $args{include} = 1;
-    return Search::Query::Dialect::Lucy::Compiler->new(%args);
+    return LucyX::Search::WildcardCompiler->new(%args);
 }
 
 1;
@@ -233,10 +234,6 @@ L<http://cpanratings.perl.org/d/LucyX-Search-WildcardQuery>
 L<http://search.cpan.org/dist/LucyX-Search-WildcardQuery/>
 
 =back
-
-
-=head1 ACKNOWLEDGEMENTS
-
 
 =head1 COPYRIGHT & LICENSE
 

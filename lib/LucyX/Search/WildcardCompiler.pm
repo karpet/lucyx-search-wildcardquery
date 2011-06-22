@@ -4,6 +4,7 @@ use warnings;
 use base qw( Lucy::Search::Compiler );
 use Carp;
 use LucyX::Search::WildcardScorer;
+use Data::Dump qw( dump );
 
 our $VERSION = '0.01';
 
@@ -157,7 +158,7 @@ sub make_matcher {
     # make final preparations
     $self->_perform_query_normalization($searchable);
 
-    return Search::Query::Dialect::Lucy::Scorer->new(
+    return LucyX::Search::WildcardScorer->new(
         posting_lists => \@posting_lists,
         compiler      => $self,
     );
@@ -276,9 +277,6 @@ Please report any bugs or feature requests to C<bug-lucyx-search-wildcardquery a
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=LucyX-Search-WildcardQuery>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
-
-
-
 =head1 SUPPORT
 
 You can find documentation for this module with the perldoc command.
@@ -305,6 +303,8 @@ L<http://cpanratings.perl.org/d/LucyX-Search-WildcardQuery>
 =item * Search CPAN
 
 L<http://search.cpan.org/dist/LucyX-Search-WildcardQuery/>
+
+=back
 
 =head1 COPYRIGHT & LICENSE
 

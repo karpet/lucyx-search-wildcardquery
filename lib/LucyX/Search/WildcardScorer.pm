@@ -152,6 +152,8 @@ L<http://cpanratings.perl.org/d/LucyX-Search-WildcardQuery>
 
 L<http://search.cpan.org/dist/LucyX-Search-WildcardQuery/>
 
+=back
+
 =head1 COPYRIGHT & LICENSE
 
 Copyright 2011 Peter Karman.

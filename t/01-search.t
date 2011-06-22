@@ -11,7 +11,10 @@ use Lucy::Plan::FullTextType;
 use Lucy::Analysis::PolyAnalyzer;
 use Lucy::Index::Indexer;
 use Lucy::Search::IndexSearcher;
-use Lucy::Search::QueryParser;
+
+use_ok('LucyX::Search::NOTWildcardQuery');
+use_ok('LucyX::Search::WildcardQuery');
+
 my $schema   = Lucy::Plan::Schema->new;
 my $analyzer = Lucy::Analysis::PolyAnalyzer->new( language => 'en', );
 my $fulltext = Lucy::Plan::FullTextType->new(
@@ -74,12 +77,12 @@ my $searcher = Lucy::Search::IndexSearcher->new( index => $invindex, );
 
 # search
 my %queries = (
-    'color:re*'                   => 1,
-    'color:re?'                   => 1,
-    'color:br?wn'                 => 1,
-    'color:*n'                    => 2,
-    'NOT option:?*'               => 1,
-    '*oc*'                        => 4,
+    'color:re*'     => 1,
+    'color:re?'     => 1,
+    'color:br?wn'   => 1,
+    'color:*n'      => 2,
+    'NOT option:?*' => 1,
+    'title:*oc*'    => 4,
 );
 
 for my $str ( sort keys %queries ) {
@@ -101,14 +104,30 @@ for my $str ( sort keys %queries ) {
     is( $hits->total_hits, $hits_expected, "$str = $hits_expected" );
 
     if ( $hits->total_hits != $hits_expected ) {
-        diag( dump $query->dump );
+        diag( dump( $query->dump ) );
     }
 }
 
 # allow for adding new queries without adjusting test count
-done_testing( scalar( keys %queries ) + 9 );
+done_testing( scalar( keys %queries ) + 2 );
 
 sub make_query {
     my $str = shift;
+
+    my ( $field, $term ) = ( $str =~ m/(\w+):(\S+)/ );
+    my $query;
+    if ( $str =~ m/NOT/ ) {
+        $query = LucyX::Search::NOTWildcardQuery->new(
+            field => $field,
+            term  => $term,
+        );
+    }
+    else {
+        $query = LucyX::Search::WildcardQuery->new(
+            field => $field,
+            term  => $term,
+        );
+    }
+    return $query;
 
 }
