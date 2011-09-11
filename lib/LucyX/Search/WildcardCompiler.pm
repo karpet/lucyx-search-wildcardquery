@@ -286,7 +286,7 @@ sub highlight_spans {
         my $ends   = $term_vec->get_end_offsets->to_arrayref;
         my $i      = 0;
         for my $s (@$starts) {
-            my $len = $ends->[$i] - $s;
+            my $len = $ends->[$i++] - $s;
             push @$spans,
                 Lucy::Search::Span->new(
                 offset => $s,
