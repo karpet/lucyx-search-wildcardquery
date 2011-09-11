@@ -42,6 +42,7 @@ my %field;
 my %regex;
 my %prefix;
 my %suffix;
+my %lex_terms;
 
 =head2 new( I<args> )
 
@@ -134,6 +135,31 @@ sub get_regex  { my $self = shift; return $regex{$$self} }
 sub get_prefix { my $self = shift; return $prefix{$$self} }
 sub get_suffix { my $self = shift; return $suffix{$$self} }
 
+=head2 add_lex_term( I<term> )
+
+Push I<term> onto the stack of lexicon terms that this Query matches.
+
+=cut
+
+sub add_lex_term {
+    my $self = shift;
+    my $t    = shift;
+    croak "term required" unless defined $t;
+    $lex_terms{$$self}->{$t}++;
+}
+
+=head2 get_lex_terms
+
+Returns array ref of terms in the lexicons that this
+query matches.
+
+=cut
+
+sub get_lex_terms {
+    my $self = shift;
+    return [ keys %{ $lex_terms{$$self} } ];
+}
+
 sub DESTROY {
     my $self = shift;
     delete $term{$$self};
@@ -141,6 +167,7 @@ sub DESTROY {
     delete $prefix{$$self};
     delete $suffix{$$self};
     delete $regex{$$self};
+    delete $lex_terms{$$self};
     $self->SUPER::DESTROY;
 }
 

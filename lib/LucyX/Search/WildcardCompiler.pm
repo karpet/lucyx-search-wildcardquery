@@ -4,6 +4,7 @@ use warnings;
 use base qw( Lucy::Search::Compiler );
 use Carp;
 use LucyX::Search::WildcardScorer;
+use Lucy::Search::Span;
 use Data::Dump qw( dump );
 
 our $VERSION = '0.01';
@@ -11,10 +12,8 @@ our $VERSION = '0.01';
 my $DEBUG = $ENV{LUCYX_DEBUG} || 0;
 
 # inside out vars
-my (%include,           %searchable,        %idf,
-    %raw_impact,        %lex_terms,         %doc_freq,
-    %query_norm_factor, %normalized_impact, %term_freq
-);
+my ( %include, %searchable, %idf, %raw_impact, %doc_freq, %query_norm_factor,
+    %normalized_impact, %term_freq, );
 
 sub DESTROY {
     my $self = shift;
@@ -22,7 +21,6 @@ sub DESTROY {
     delete $raw_impact{$$self};
     delete $query_norm_factor{$$self};
     delete $searchable{$$self};
-    delete $lex_terms{$$self};
     delete $normalized_impact{$$self};
     delete $idf{$$self};
     delete $doc_freq{$$self};
@@ -98,7 +96,6 @@ sub make_matcher {
 
     # Accumulate PostingLists for each matching term.
     my @posting_lists;
-    my @lex_terms;
     my $include = $include{$$self};
     while ( defined( my $lex_term = $lexicon->get_term ) ) {
 
@@ -139,14 +136,13 @@ sub make_matcher {
         $DEBUG and carp "check posting_list";
         if ($posting_list) {
             push @posting_lists, $posting_list;
-            push @lex_terms,     $lex_term;
+            $parent->add_lex_term($lex_term);
         }
         last unless $lexicon->next;
     }
     return unless @posting_lists;
 
-    $doc_freq{$$self}  = scalar(@posting_lists);
-    $lex_terms{$$self} = \@lex_terms;
+    $doc_freq{$$self} = scalar(@posting_lists);
 
     $DEBUG and carp dump \@posting_lists;
 
@@ -191,17 +187,6 @@ Returns the document frequency for this Compiler.
 sub get_doc_freq {
     my $self = shift;
     return $doc_freq{$$self};
-}
-
-=head2 get_lex_terms
-
-Returns array ref of the terms in the lexicon that matched.
-
-=cut
-
-sub get_lex_terms {
-    my $self = shift;
-    return $lex_terms{$$self};
 }
 
 sub _perform_query_normalization {
@@ -268,6 +253,51 @@ sub normalize {    # copied from TermQuery
 
     #carp "normalized_impact{$$self} = $normalized_impact{$$self}";
     return $normalized_impact{$$self};
+}
+
+=head2 highlight_spans( I<args> )
+
+See documentation in Lucy::Search::Query.
+
+Returns arrayref of Lucy::Search::Span objects.
+
+=cut
+
+sub highlight_spans {
+    my ( $self, %params ) = @_;
+
+    # call super method immediately just to test %params.
+    # it will always return empty array ref, which we can use.
+    my $spans  = $self->SUPER::highlight_spans(%params);
+    my $parent = $self->get_parent;
+    my $term   = $parent->get_term;
+
+    return $spans unless defined $term and length $term;
+    return $spans unless $parent->get_field eq $params{field};
+
+    my $lex_terms = $parent->get_lex_terms;
+    for my $t (@$lex_terms) {
+
+        my $term_vec = $params{doc_vec}
+            ->term_vector( field => $params{field}, term => $t );
+        next unless $term_vec;
+
+        my $starts = $term_vec->get_start_offsets->to_arrayref;
+        my $ends   = $term_vec->get_end_offsets->to_arrayref;
+        my $i      = 0;
+        for my $s (@$starts) {
+            my $len = $ends->[$i] - $s;
+            push @$spans,
+                Lucy::Search::Span->new(
+                offset => $s,
+                length => $len,
+                weight => $parent->get_boost,
+                );
+        }
+
+    }
+
+    return $spans;
 }
 
 1;
