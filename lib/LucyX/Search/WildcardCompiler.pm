@@ -7,7 +7,7 @@ use LucyX::Search::WildcardScorer;
 use Lucy::Search::Span;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my $DEBUG = $ENV{LUCYX_DEBUG} || 0;
 

@@ -3,3 +3,5 @@ Revision history for LucyX-Search-WildcardQuery
 0.01    21 June 2011
         Initial release. Forked from Search::Query::Dialect::Lucy.
 
+0.02    23 Sept 2011
+        add highlighting spans support 
