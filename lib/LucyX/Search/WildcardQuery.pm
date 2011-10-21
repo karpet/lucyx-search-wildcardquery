@@ -6,7 +6,7 @@ use Carp;
 use Scalar::Util qw( blessed );
 use LucyX::Search::WildcardCompiler;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -209,12 +209,19 @@ Returns a LucyX::Search::WildcardCompiler object.
 =cut
 
 sub make_compiler {
-    my $self = shift;
-    my %args = @_;
-    delete $args{subordinate};  # new in Lucy 0.2.2
+    my $self        = shift;
+    my %args        = @_;
+    my $subordinate = delete $args{subordinate};    # new in Lucy 0.2.2
     $args{parent}  = $self;
     $args{include} = 1;
-    return LucyX::Search::WildcardCompiler->new(%args);
+    my $compiler = LucyX::Search::WildcardCompiler->new(%args);
+
+    # unlike Search::Query synopsis, normalize()
+    # is called internally in $compiler.
+    # This should be fixed in a C re-write.
+    #$compiler->normalize unless $subordinate;
+
+    return $compiler;
 }
 
 1;
@@ -230,9 +237,6 @@ Peter Karman, C<< <karman at cpan.org> >>
 Please report any bugs or feature requests to C<bug-lucyx-search-wildcardquery at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=LucyX-Search-WildcardQuery>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
-
-
-
 
 =head1 SUPPORT
 

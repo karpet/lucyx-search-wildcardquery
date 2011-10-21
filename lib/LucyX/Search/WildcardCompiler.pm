@@ -7,7 +7,7 @@ use LucyX::Search::WildcardScorer;
 use Lucy::Search::Span;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 my $DEBUG = $ENV{LUCYX_DEBUG} || 0;
 
@@ -243,11 +243,15 @@ Affects the score of the term. See Lucy::Search::Compiler.
 
 sub normalize {    # copied from TermQuery
     my ( $self, $query_norm_factor ) = @_;
-    $query_norm_factor{$$self} = $query_norm_factor;
+    $query_norm_factor{$$self} = $query_norm_factor || 1;
 
     # Multiply raw impact by ( tf_q * idf_q / norm_q )
     #
     # Note: factoring in IDF a second time is correct.  See formula.
+    #warn "raw_impact=$raw_impact{$$self}";
+    #warn "idf=$idf{$$self}";
+    #warn "query_norm_factor=$query_norm_factor";
+
     $normalized_impact{$$self}
         = $raw_impact{$$self} * $idf{$$self} * $query_norm_factor;
 
@@ -286,7 +290,7 @@ sub highlight_spans {
         my $ends   = $term_vec->get_end_offsets->to_arrayref;
         my $i      = 0;
         for my $s (@$starts) {
-            my $len = $ends->[$i++] - $s;
+            my $len = $ends->[ $i++ ] - $s;
             push @$spans,
                 Lucy::Search::Span->new(
                 offset => $s,
