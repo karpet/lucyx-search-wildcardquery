@@ -204,13 +204,14 @@ sub to_string {
 
 =head2 make_compiler
 
-Returns a Search::Query::Dialect::Lucy::Compiler object.
+Returns a LucyX::Search::WildcardCompiler object.
 
 =cut
 
 sub make_compiler {
     my $self = shift;
     my %args = @_;
+    delete $args{subordinate};  # new in Lucy 0.2.2
     $args{parent}  = $self;
     $args{include} = 1;
     return LucyX::Search::WildcardCompiler->new(%args);
