@@ -6,17 +6,17 @@ use Data::Dump qw( dump );
 use File::Temp qw( tempdir );
 my $invindex = tempdir( CLEANUP => 1 );
 
-use Lucy::Plan::Schema;
-use Lucy::Plan::FullTextType;
-use Lucy::Analysis::PolyAnalyzer;
-use Lucy::Index::Indexer;
-use Lucy::Search::IndexSearcher;
+use Lucy;
 
 use_ok('LucyX::Search::NOTWildcardQuery');
 use_ok('LucyX::Search::WildcardQuery');
 
+my $case_folder = Lucy::Analysis::CaseFolder->new;
+my $tokenizer   = Lucy::Analysis::RegexTokenizer->new;
+my $analyzer    = Lucy::Analysis::PolyAnalyzer->new(
+    analyzers => [ $case_folder, $tokenizer, ], );
+
 my $schema   = Lucy::Plan::Schema->new;
-my $analyzer = Lucy::Analysis::PolyAnalyzer->new( language => 'en', );
 my $fulltext = Lucy::Plan::FullTextType->new(
     analyzer => $analyzer,
     sortable => 1,
