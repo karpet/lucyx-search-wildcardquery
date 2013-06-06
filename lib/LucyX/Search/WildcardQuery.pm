@@ -6,7 +6,7 @@ use Carp;
 use Scalar::Util qw( blessed );
 use LucyX::Search::WildcardCompiler;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 NAME
 
@@ -185,9 +185,9 @@ sub equals {
     my ( $self, $other ) = @_;
     return 0 unless blessed($other);
     return 0
-        unless $other->isa("Search::Query::Dialect::Lucy::WildcardQuery");
-    return 0 unless $field{$$self} eq $field{$$other};
-    return 0 unless $term{$$self}  eq $term{$$other};
+        unless $other->isa( blessed($self) );
+    return 0 unless $self->get_field eq $other->get_field;
+    return 0 unless $self->get_term  eq $other->get_term;
     return 1;
 }
 

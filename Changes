@@ -11,3 +11,4 @@ Revision history for LucyX-Search-WildcardQuery
 
 0.04    xxx
         * turn off Stemming analyzer in tests, to clarify how wildcards work.
+        * refactor equals()
