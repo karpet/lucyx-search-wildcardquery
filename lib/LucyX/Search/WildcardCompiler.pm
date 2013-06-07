@@ -65,7 +65,7 @@ sub new {
 
 =head2 make_matcher( I<args> )
 
-Returns a Search::Query::Dialect::Lucy::Scorer object.
+Returns a LucyX::Search::WildcardScorer object.
 
 =cut
 
