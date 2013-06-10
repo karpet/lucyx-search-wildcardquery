@@ -2,7 +2,6 @@ Changes
 lib/LucyX/Search/NOTWildcardQuery.pm
 lib/LucyX/Search/WildcardCompiler.pm
 lib/LucyX/Search/WildcardQuery.pm
-lib/LucyX/Search/WildcardScorer.pm
 Makefile.PL
 MANIFEST
 README
