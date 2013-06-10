@@ -212,8 +212,7 @@ sub make_compiler {
     my $self        = shift;
     my %args        = @_;
     my $subordinate = delete $args{subordinate};    # new in Lucy 0.2.2
-    $args{parent}  = $self;
-    $args{include} = 1;
+    $args{parent} = $self;
     my $compiler = LucyX::Search::WildcardCompiler->new(%args);
 
     # unlike Search::Query synopsis, normalize()
