@@ -12,7 +12,7 @@ our $VERSION = '0.04';
 my $DEBUG = $ENV{LUCYX_DEBUG} || 0;
 
 # inside out vars
-my ( %searcher, %ORCompiler, %ORQuery, %subordinate );
+my ( %searcher, %ORCompiler, %ORQuery, %subordinate, );
 
 sub DESTROY {
     my $self = shift;
@@ -123,7 +123,9 @@ sub make_matcher {
 
     return if !@terms;
 
-    $DEBUG and warn dump \@terms;
+    if ($DEBUG) {
+        warn "[$self] $field=" . dump( [ map { $_->get_term } @terms ] );
+    }
 
     my $or_query = Lucy::Search::ORQuery->new( children => \@terms, );
     $ORQuery{$$self} = $or_query;
@@ -202,16 +204,46 @@ sub sum_of_squared_weights {
 
 =head2 highlight_spans
 
-Delegates to ORCompiler child.
+Creates Lucy::Search::Span object for each matching term.
+Returns arrayref of Span objects.
 
 =cut
 
 sub highlight_spans {
-    my $self = shift;
-    if ( !exists $ORCompiler{$$self} ) {
-        return $self->SUPER::highlight_spans(@_);
+    my ( $self, %params ) = @_;
+
+    # call super method immediately just to test %params.
+    # it will always return empty array ref, which we can use.
+    my $spans  = $self->SUPER::highlight_spans(%params);
+    my $parent = $self->get_parent;
+    my $term   = $parent->get_term;
+
+    return $spans unless defined $term and length $term;
+    return $spans unless $parent->get_field eq $params{field};
+
+    my $lex_terms = $parent->get_lex_terms;
+    for my $t (@$lex_terms) {
+
+        my $term_vec = $params{doc_vec}
+            ->term_vector( field => $params{field}, term => $t );
+        next unless $term_vec;
+
+        my $starts = $term_vec->get_start_offsets->to_arrayref;
+        my $ends   = $term_vec->get_end_offsets->to_arrayref;
+        my $i      = 0;
+        for my $s (@$starts) {
+            my $len = $ends->[ $i++ ] - $s;
+            push @$spans,
+                Lucy::Search::Span->new(
+                offset => $s,
+                length => $len,
+                weight => $parent->get_boost,
+                );
+        }
+
     }
-    return $ORCompiler{$$self}->highlight_spans(@_);
+
+    return $spans;
 }
 
 1;
@@ -224,8 +256,10 @@ Peter Karman, C<< <karman at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-lucyx-search-wildcardquery at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=LucyX-Search-WildcardQuery>.  I will be notified, and then you'll
+Please report any bugs or feature requests to C<bug-lucyx-search-wildcardquery at rt.cpan.org>, 
+or through the web interface at 
+L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=LucyX-Search-WildcardQuery>.  
+I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 =head1 SUPPORT

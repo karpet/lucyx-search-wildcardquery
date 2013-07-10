@@ -9,7 +9,7 @@ Revision history for LucyX-Search-WildcardQuery
 0.03    21 Oct 2011
         fix to support 'subordinate' change in Lucy 0.2.2
 
-0.04    xxx
+0.04    10 July 2013
         * turn off Stemming analyzer in tests, to clarify how wildcards work.
         * refactor internals to use delegate pattern with ORQuery and get
           rid of the WildcardScorer class
