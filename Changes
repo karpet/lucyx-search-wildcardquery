@@ -1,5 +1,8 @@
 Revision history for LucyX-Search-WildcardQuery
 
+0.05 4 Oct 2013
+ - fix highlight_spans() to actually work
+
 0.04 10 July 2013
  - turn off Stemming analyzer in tests, to clarify how wildcards work.
  - refactor internals to use delegate pattern with ORQuery and get rid of

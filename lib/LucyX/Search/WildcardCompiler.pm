@@ -7,7 +7,7 @@ use Lucy::Search::ORQuery;
 use Lucy::Search::TermQuery;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 my $DEBUG = $ENV{LUCYX_DEBUG} || 0;
 
@@ -214,18 +214,25 @@ sub highlight_spans {
 
     # call super method immediately just to test %params.
     # it will always return empty array ref, which we can use.
-    my $spans  = $self->SUPER::highlight_spans(%params);
-    my $parent = $self->get_parent;
-    my $term   = $parent->get_term;
+    my $spans   = $self->SUPER::highlight_spans(%params);
+    my $parent  = $self->get_parent;
+    my $term    = $parent->get_term;
+    my $field   = $params{field};
+    my $doc_vec = $params{doc_vec};
+
+    # warn sprintf("field=%s term=%s parent->field=%s\n",
+    # $field, $term, $parent->get_field);
 
     return $spans unless defined $term and length $term;
-    return $spans unless $parent->get_field eq $params{field};
+    return $spans unless $parent->get_field eq $field;
 
     my $lex_terms = $parent->get_lex_terms;
+
+    #warn sprintf("lex_terms=%s\n", dump($lex_terms));
+
     for my $t (@$lex_terms) {
 
-        my $term_vec = $params{doc_vec}
-            ->term_vector( field => $params{field}, term => $t );
+        my $term_vec = $doc_vec->term_vector( field => $field, term => $t );
         next unless $term_vec;
 
         my $starts = $term_vec->get_start_offsets->to_arrayref;
