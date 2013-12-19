@@ -5,7 +5,7 @@ use base qw( Lucy::Search::NOTQuery );
 use Carp;
 use LucyX::Search::WildcardQuery;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 =head1 NAME
 

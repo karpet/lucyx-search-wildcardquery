@@ -7,7 +7,7 @@ use Lucy::Search::ORQuery;
 use Lucy::Search::TermQuery;
 use Data::Dump qw( dump );
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 my $DEBUG = $ENV{LUCYX_DEBUG} || 0;
 

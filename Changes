@@ -1,5 +1,8 @@
 Revision history for LucyX-Search-WildcardQuery
 
+0.06 xxx
+ - pod fix(es)
+
 0.05 4 Oct 2013
  - fix highlight_spans() to actually work
 
