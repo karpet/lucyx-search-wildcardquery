@@ -1,7 +1,8 @@
 Revision history for LucyX-Search-WildcardQuery
 
-0.06 xxx
+0.06 01 Sept 2014
  - pod fix(es)
+ - pass boost through to child ORCompiler (required for Lucy 0.4.0)
 
 0.05 4 Oct 2013
  - fix highlight_spans() to actually work

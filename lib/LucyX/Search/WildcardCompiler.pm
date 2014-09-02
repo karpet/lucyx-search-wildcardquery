@@ -129,8 +129,10 @@ sub make_matcher {
 
     my $or_query = Lucy::Search::ORQuery->new( children => \@terms, );
     $ORQuery{$$self} = $or_query;
-    my $or_compiler
-        = $or_query->make_compiler( searcher => $searcher{$$self} );
+    my $or_compiler = $or_query->make_compiler(
+        searcher => $searcher{$$self},
+        boost    => ( $args{boost} || 0 ),
+    );
     $ORCompiler{$$self} = $or_compiler;
     return $or_compiler->make_matcher(%args);
 }
